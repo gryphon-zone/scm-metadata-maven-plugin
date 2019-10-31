@@ -17,13 +17,25 @@ package zone.gryphon.maven.plugins.scm;
 
 import lombok.experimental.UtilityClass;
 
+/**
+ * Constants for supported SCM implementations
+ */
 @UtilityClass
 public final class KnownScms {
 
+    /**
+     * Meta-value indicating no SCM implementation.
+     */
     public static final String NONE = "none";
 
+    /**
+     * Meta-value indicating SCM implementation should be automatically determined.
+     */
     public static final String AUTO = "auto";
 
+    /**
+     * {@code git} SCM implementation
+     */
     public static final String GIT = "git";
 
 }

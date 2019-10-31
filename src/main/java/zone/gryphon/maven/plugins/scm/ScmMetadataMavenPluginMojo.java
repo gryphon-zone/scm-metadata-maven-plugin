@@ -38,6 +38,26 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.INITIALIZE;
 import static zone.gryphon.maven.plugins.scm.KnownScms.AUTO;
 import static zone.gryphon.maven.plugins.scm.KnownScms.NONE;
 
+/**
+ * Generates metadata about the project's SCM, and injects it into the build context as
+ * <a href="https://maven.apache.org/pom.html#Properties">Maven Properties</a>
+ * for re-use by other plugins.
+ * <br><br>
+ * The metadata calculated is:
+ * <ul>
+ * <li><code>revision</code> - the current project revision (e.g. git commit SHA)</li>
+ * <li><code>branch</code> - the current SCM branch (e.g. <code>master</code>)</li>
+ * <li><code>dirty</code> - <code>true</code> if there are any uncommitted local changes in files which are not excluded from SCM, <code>false</code> otherwise (equivalent to checking <code>git status --porcelain</code>)</li>
+ * </ul>
+ * <br><br>
+ * Note that the name of each property is prefixed with the value of the <code>prefix</code> configuration option,
+ * meaning the properties set when using the default configuration are:
+ * <ul>
+ * <li><code>scm.metadata.revision</code></li>
+ * <li><code>scm.metadata.branch</code></li>
+ * <li><code>scm.metadata.dirty</code></li>
+ * </ul>
+ */
 @Mojo(
     name = "metadata",
     defaultPhase = INITIALIZE
@@ -52,19 +72,40 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     protected MavenProject project;
 
+    /**
+     * Maven session
+     */
     @Parameter(defaultValue = "${session}", required = true, readonly = true)
     private MavenSession session;
 
+    /**
+     * If true, plugin execution will be skipped
+     */
     @Parameter(defaultValue = "false")
     private boolean skip;
 
+    /**
+     * SCM implementation to use when calculating metadata. Valid configuration settings:
+     * <ul>
+     * <li><code>none</code> - don't inject SCM metadata (equivalent to setting <code>skip</code> to true</li>
+     * <li><code>auto</code> - attempt to automatically determine the SCM implementation based on the <a href="https://maven.apache.org/pom.html#SCM"><code>scm.connection</code></a> value set in the POM</li>
+     * <li><code>git</code> - use <code>git</code> to look up SCM information</li>
+     * </ul>
+     */
     @Parameter(defaultValue = AUTO)
     private String type;
 
+    /**
+     * Directory to start search for SCM configuration in.
+     * Parent directories will be recursively checked until the SCM configuration is discovered, or the root folder is reached.
+     */
     @Parameter(defaultValue = "${project.basedir}")
     private File directory;
 
-    @Parameter(defaultValue = "scm.metadata")
+    /**
+     * Prefix to apply to all property names.
+     */
+    @Parameter(defaultValue = "scm.metadata.")
     private String prefix;
 
     @Override
@@ -82,10 +123,14 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
 
         try {
 
+            // calculate the metadata itself
             ScmMetadata metadata = loadMetadata();
 
+            // calculate the values of the properties.
+            // handles any renaming
             Map<String, String> properties = calculateProperties(metadata);
 
+            // set the properties
             project.getProperties().putAll(properties);
             session.getUserProperties().putAll(properties);
 
@@ -114,14 +159,19 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
         if (prefix == null || prefix.isEmpty()) {
             calculated = key;
         } else {
-            calculated = String.format("%s.%s", prefix, key);
+            calculated = String.format("%s%s", prefix, key);
         }
 
         return calculated;
     }
 
-    private boolean typeMatches(String checkedType) {
-        return (type == null && checkedType == null) || (type != null && type.equalsIgnoreCase(checkedType));
+    /**
+     * Returns true if the given SCM implementation matches the configured {@link #getType()}.
+     * @param scmTypeToCheck The SCM type to check
+     * @return True if the given SCM type matches the configured SCM type
+     */
+    private boolean typeMatches(String scmTypeToCheck) {
+        return (type == null && scmTypeToCheck == null) || (type != null && type.equalsIgnoreCase(scmTypeToCheck));
     }
 
     private ScmMetadata loadMetadata() throws MojoFailureException {
@@ -156,6 +206,7 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
 
     private List<ScmMetadataProvider> loadAllProviders() {
         List<ScmMetadataProvider> out = new ArrayList<>();
+        // TODO dynamic SCM metadata provider loader
         out.add(new GitScmMetadataProvider());
         return Collections.unmodifiableList(out);
     }
