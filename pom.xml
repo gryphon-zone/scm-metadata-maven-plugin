@@ -19,7 +19,7 @@
     <parent>
         <groupId>zone.gryphon</groupId>
         <artifactId>base-pom</artifactId>
-        <version>0.20.51-5a4634a</version>
+        <version>0.20.54-9c7db03</version>
     </parent>
 
     <groupId>zone.gryphon.maven.plugins</groupId>
@@ -31,7 +31,13 @@
     <name>${project.artifactId}</name>
     <description>Maven plugin to inject metadata about SCM into the Maven build properties.</description>
 
-    <url>https://github.com/gryphon-zone/scm-metadata-maven-plugin</url>
+    <url>https://gryphon-zone.github.io/scm-metadata-maven-plugin</url>
+
+    <inceptionYear>2019</inceptionYear>
+
+    <prerequisites>
+        <maven>${maven-api.version}</maven>
+    </prerequisites>
 
     <scm>
         <?SORTPOM IGNORE?>
@@ -43,8 +49,9 @@
     </scm>
 
     <properties>
-        <java.minorVersion>7</java.minorVersion>
+        <java.version.minor>7</java.version.minor>
         <maven-api.version>3.3.3</maven-api.version>
+        <maven.site.deploy.skip>false</maven.site.deploy.skip>
     </properties>
 
     <dependencyManagement>
@@ -107,6 +114,13 @@
                 <groupId>org.apache.maven.plugin-testing</groupId>
                 <artifactId>maven-plugin-testing-harness</artifactId>
                 <version>3.3.0</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>2.9.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -189,6 +203,20 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.8.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -227,5 +255,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
 
 </project>
