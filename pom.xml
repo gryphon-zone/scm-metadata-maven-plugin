@@ -206,6 +206,27 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-site</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <phase>site-deploy</phase>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>${project.basedir}/docs</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -236,6 +257,31 @@
                         <goals>
                             <goal>helpmojo</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- disable default site deploy goal -->
+                        <id>default-deploy</id>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <!-- add custom deploy goal to deploy site to docs/ directory -->
+                        <id>local-deploy</id>
+                        <goals>
+                            <goal>stage-deploy</goal>
+                        </goals>
+                        <phase>site-deploy</phase>
+                        <configuration>
+                            <stagingSiteURL>file:${project.basedir}/docs</stagingSiteURL>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
