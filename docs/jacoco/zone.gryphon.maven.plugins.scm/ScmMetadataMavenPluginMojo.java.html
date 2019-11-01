@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScmMetadataMavenPluginMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">scm-metadata-maven-plugin</a> &gt; <a href="index.source.html" class="el_package">zone.gryphon.maven.plugins.scm</a> &gt; <span class="el_source">ScmMetadataMavenPluginMojo.java</span></div><h1>ScmMetadataMavenPluginMojo.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2019-2019 Gryphon Zone
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package zone.gryphon.maven.plugins.scm;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import zone.gryphon.maven.plugins.scm.git.GitScmMetadataProvider;
+import zone.gryphon.maven.plugins.scm.model.ScmMetadata;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.maven.plugins.annotations.LifecyclePhase.INITIALIZE;
+import static zone.gryphon.maven.plugins.scm.KnownScms.AUTO;
+import static zone.gryphon.maven.plugins.scm.KnownScms.NONE;
+
+/**
+ * Generates metadata about the project's SCM, and injects it into the build context as
+ * &lt;a href=&quot;https://maven.apache.org/pom.html#Properties&quot;&gt;Maven Properties&lt;/a&gt;
+ * for re-use by other plugins.
+ * &lt;br&gt;
+ * The metadata calculated is:
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;code&gt;revision&lt;/code&gt; - the current project revision (e.g. git commit SHA)&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;branch&lt;/code&gt; - the current SCM branch (e.g. &lt;code&gt;master&lt;/code&gt;)&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;dirty&lt;/code&gt; - &lt;code&gt;true&lt;/code&gt; if there are any uncommitted local changes in files which are not excluded from SCM, &lt;code&gt;false&lt;/code&gt; otherwise (equivalent to checking &lt;code&gt;git status --porcelain&lt;/code&gt;)&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;br&gt;
+ * Note that the name of each property is prefixed with the value of the &lt;code&gt;prefix&lt;/code&gt; configuration option,
+ * meaning the properties set when using the default configuration are:
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;code&gt;scm.metadata.revision&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;scm.metadata.branch&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;scm.metadata.dirty&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @since 1.0
+ */
+@Mojo(
+    name = &quot;metadata&quot;,
+    defaultPhase = INITIALIZE
+)
+<span class="pc" id="L67">@Data</span>
+<span class="nc bnc" id="L68" title="All 52 branches missed.">@EqualsAndHashCode(callSuper = true)</span>
+public class ScmMetadataMavenPluginMojo extends AbstractMojo {
+
+    /**
+     * Maven project
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = &quot;${project}&quot;, required = true, readonly = true)
+<span class="nc" id="L77">    protected MavenProject project;</span>
+
+    /**
+     * Maven session
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = &quot;${session}&quot;, required = true, readonly = true)
+<span class="nc" id="L85">    private MavenSession session;</span>
+
+    /**
+     * If true, plugin execution will be skipped
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = &quot;false&quot;)
+<span class="nc" id="L93">    private boolean skip;</span>
+
+    /**
+     * SCM implementation to use when calculating metadata. Valid options:
+     * &lt;ul&gt;
+     * &lt;li&gt;&lt;code&gt;none&lt;/code&gt; - don't inject SCM metadata (equivalent to setting &lt;code&gt;skip&lt;/code&gt; to true&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;auto&lt;/code&gt; - attempt to automatically determine the SCM implementation based on the &lt;a href=&quot;https://maven.apache.org/pom.html#SCM&quot;&gt;&lt;code&gt;scm.connection&lt;/code&gt;&lt;/a&gt; value set in the POM&lt;/li&gt;
+     * &lt;li&gt;&lt;code&gt;git&lt;/code&gt; - use &lt;code&gt;git&lt;/code&gt; to look up SCM information&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = AUTO)
+<span class="nc" id="L106">    private String type;</span>
+
+    /**
+     * Directory to start search for SCM configuration in.
+     * Parent directories will be recursively checked until the SCM configuration is discovered, or the root folder is reached.
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = &quot;${project.basedir}&quot;)
+<span class="nc" id="L115">    private File directory;</span>
+
+    /**
+     * Prefix to apply to all property names.
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = &quot;scm.metadata.&quot;)
+<span class="nc" id="L123">    private String prefix;</span>
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (skip) {</span>
+<span class="nc" id="L129">            getLog().debug(String.format(&quot;skip set to \&quot;%s\&quot;, not adding SCM information&quot;, skip));</span>
+<span class="nc" id="L130">            return;</span>
+        }
+
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (typeMatches(NONE)) {</span>
+<span class="nc" id="L134">            getLog().debug(String.format(&quot;type set to \&quot;%s\&quot;, not adding SCM information&quot;, type));</span>
+<span class="nc" id="L135">            return;</span>
+        }
+
+        try {
+
+            // calculate the metadata itself
+<span class="fc" id="L141">            ScmMetadata metadata = loadMetadata();</span>
+
+            // calculate the values of the properties.
+            // handles any renaming
+<span class="fc" id="L145">            Map&lt;String, String&gt; properties = calculateProperties(metadata);</span>
+
+            // set the properties
+<span class="fc" id="L148">            project.getProperties().putAll(properties);</span>
+<span class="fc" id="L149">            session.getUserProperties().putAll(properties);</span>
+
+<span class="nc" id="L151">        } catch (MojoFailureException e) {</span>
+<span class="nc" id="L152">            throw e;</span>
+<span class="nc" id="L153">        } catch (Throwable t) {</span>
+<span class="nc" id="L154">            throw new MojoExecutionException(&quot;Unexpected failure during plugin execution&quot;, t);</span>
+<span class="fc" id="L155">        }</span>
+<span class="fc" id="L156">    }</span>
+
+    private Map&lt;String, String&gt; calculateProperties(ScmMetadata metadata) {
+<span class="fc" id="L159">        Map&lt;String, String&gt; out = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L161">        out.put(calculatePropertyName(&quot;revision&quot;), metadata.getRevision());</span>
+<span class="fc" id="L162">        out.put(calculatePropertyName(&quot;branch&quot;), metadata.getBranch());</span>
+<span class="fc" id="L163">        out.put(calculatePropertyName(&quot;dirty&quot;), Boolean.toString(metadata.getUncommittedChangesPresent()));</span>
+
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : out.entrySet()) {</span>
+<span class="fc" id="L166">            getLog().debug(String.format(&quot;Calculated %s=%s&quot;, entry.getKey(), entry.getValue()));</span>
+<span class="fc" id="L167">        }</span>
+
+<span class="fc" id="L169">        return out;</span>
+    }
+
+    private String calculatePropertyName(String key) {
+        String calculated;
+
+<span class="pc bpc" id="L175" title="2 of 4 branches missed.">        if (prefix == null || prefix.isEmpty()) {</span>
+<span class="nc" id="L176">            calculated = key;</span>
+        } else {
+<span class="fc" id="L178">            calculated = String.format(&quot;%s%s&quot;, prefix, key);</span>
+        }
+
+<span class="fc" id="L181">        return calculated;</span>
+    }
+
+    /**
+     * Returns true if the given SCM implementation matches the configured {@link #getType()}.
+     *
+     * @param scmTypeToCheck The SCM type to check
+     * @return True if the given SCM type matches the configured SCM type
+     */
+    private boolean typeMatches(String scmTypeToCheck) {
+<span class="pc bpc" id="L191" title="4 of 8 branches missed.">        return (type == null &amp;&amp; scmTypeToCheck == null) || (type != null &amp;&amp; type.equalsIgnoreCase(scmTypeToCheck));</span>
+    }
+
+    private ScmMetadata loadMetadata() throws MojoFailureException {
+
+<span class="fc" id="L196">        boolean isAuto = typeMatches(AUTO);</span>
+<span class="fc" id="L197">        boolean foundMatchingProvider = false;</span>
+
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        for (ScmMetadataProvider provider : loadAllProviders()) {</span>
+<span class="fc" id="L200">            boolean providerMatches = typeMatches(provider.type());</span>
+
+<span class="pc bpc" id="L202" title="3 of 4 branches missed.">            if (isAuto || providerMatches) {</span>
+<span class="fc" id="L203">                ScmMetadata maybeOutput = provider.generate(directory, getLog());</span>
+
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">                if (maybeOutput != null) {</span>
+<span class="fc" id="L206">                    return maybeOutput;</span>
+                }
+            }
+
+<span class="nc" id="L210">            foundMatchingProvider |= providerMatches;</span>
+<span class="nc" id="L211">        }</span>
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        if (isAuto) {</span>
+<span class="nc" id="L214">            throw new MojoFailureException(&quot;Unable to automatically determine SCM in use&quot;);</span>
+        }
+
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        if (foundMatchingProvider) {</span>
+<span class="nc" id="L218">            throw new MojoFailureException(String.format(&quot;Project does not appear to use SCM \&quot;%s\&quot;&quot;, type));</span>
+        }
+
+<span class="nc" id="L221">        throw new MojoFailureException(String.format(&quot;Unsupported SCM \&quot;%s\&quot;&quot;, type));</span>
+    }
+
+    private List&lt;ScmMetadataProvider&gt; loadAllProviders() {
+<span class="fc" id="L225">        List&lt;ScmMetadataProvider&gt; out = new ArrayList&lt;&gt;();</span>
+        // TODO dynamic SCM metadata provider loader
+<span class="fc" id="L227">        out.add(new GitScmMetadataProvider());</span>
+<span class="fc" id="L228">        return Collections.unmodifiableList(out);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
