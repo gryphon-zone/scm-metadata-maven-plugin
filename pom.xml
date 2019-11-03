@@ -19,7 +19,7 @@
     <parent>
         <groupId>zone.gryphon</groupId>
         <artifactId>base-pom</artifactId>
-        <version>0.20.61-1e581dd</version>
+        <version>0.20.62-c95785c</version>
     </parent>
 
     <groupId>zone.gryphon.maven.plugins</groupId>
@@ -276,9 +276,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <quiet>true</quiet>
                     <additionalJOptions>
-                        <additionalJOption>-html5</additionalJOption>
                         <additionalJOption>--frames</additionalJOption>
                     </additionalJOptions>
                 </configuration>
