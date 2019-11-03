@@ -19,7 +19,7 @@
     <parent>
         <groupId>zone.gryphon</groupId>
         <artifactId>base-pom</artifactId>
-        <version>0.20.54-9c7db03</version>
+        <version>0.20.61-1e581dd</version>
     </parent>
 
     <groupId>zone.gryphon.maven.plugins</groupId>
@@ -47,6 +47,13 @@
         <developerConnection>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</developerConnection>
         <?SORTPOM RESUME?>
     </scm>
+
+    <distributionManagement>
+        <site>
+            <id>github-pages</id>
+            <url>file://docs</url>
+        </site>
+    </distributionManagement>
 
     <properties>
         <java.version.minor>7</java.version.minor>
@@ -213,7 +220,7 @@
                         <goals>
                             <goal>clean</goal>
                         </goals>
-                        <phase>site-deploy</phase>
+                        <phase>post-site</phase>
                         <configuration>
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>
@@ -257,31 +264,6 @@
                         <goals>
                             <goal>helpmojo</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <!-- disable default site deploy goal -->
-                        <id>default-deploy</id>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <!-- add custom deploy goal to deploy site to docs/ directory -->
-                        <id>local-deploy</id>
-                        <goals>
-                            <goal>stage-deploy</goal>
-                        </goals>
-                        <phase>site-deploy</phase>
-                        <configuration>
-                            <stagingSiteURL>file:${project.basedir}/docs</stagingSiteURL>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

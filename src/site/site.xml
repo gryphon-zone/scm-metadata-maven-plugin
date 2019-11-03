@@ -15,29 +15,11 @@
 
 <project xmlns="http://maven.apache.org/DECORATION/1.8.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd"
-         name="${project.artifactId}">
-
-    <skin>
-        <groupId>org.apache.maven.skins</groupId>
-        <artifactId>maven-fluido-skin</artifactId>
-        <version>1.8</version>
-    </skin>
-
-    <edit>${project.scm.url}</edit>
-    <custom>
-        <fluidoSkin>
-            <sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
-        </fluidoSkin>
-    </custom>
-
-    <publishDate format="yyyy-MM-dd" position="right"/>
-    <version position="right"/>
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.8.0 http://maven.apache.org/xsd/decoration-1.8.0.xsd">
 
     <body>
 
         <breadcrumbs>
-            <item name="Gryphon Zone" href="https://github.com/gryphon-zone"/>
             <item name="SCM Metadata Maven Plugin" href="https://gryphon-zone.github.io/scm-metadata-maven-plugin"/>
         </breadcrumbs>
 
@@ -45,6 +27,7 @@
             <item name="Introduction" href="index.html"/>
             <item name="Goals" href="plugin-info.html"/>
         </menu>
-        <menu ref="reports"/>
+
     </body>
+
 </project>
