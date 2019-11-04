@@ -122,6 +122,11 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
     @Parameter(defaultValue = "scm.metadata.")
     private String prefix;
 
+    /**
+     * The normalized version of {@link #getType()}
+     */
+    private String calculatedScmType;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -130,12 +135,20 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
             return;
         }
 
-        if (typeMatches(NONE)) {
+        if (NONE.equalsIgnoreCase(type)) {
             getLog().debug(String.format("type set to \"%s\", not adding SCM information", type));
             return;
         }
 
         try {
+
+            try {
+                calculatedScmType = calculateScmType(type);
+            } catch (IllegalArgumentException e) {
+                throw new MojoFailureException(String.format("Unable to automatically determine SCM in use: %s", e.getMessage()), e);
+            }
+
+            getLog().debug(String.format("Configured SCM: \"%s\", normalized value: \"%s\"", type, calculatedScmType));
 
             // calculate the metadata itself
             ScmMetadata metadata = loadMetadata();
@@ -188,37 +201,52 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
      * @return True if the given SCM type matches the configured SCM type
      */
     private boolean typeMatches(String scmTypeToCheck) {
-        return (type == null && scmTypeToCheck == null) || (type != null && type.equalsIgnoreCase(scmTypeToCheck));
+        return (calculatedScmType == null && scmTypeToCheck == null) || (calculatedScmType != null && calculatedScmType.equalsIgnoreCase(scmTypeToCheck));
+    }
+
+    private String calculateScmType(String providedType) {
+
+        if (!AUTO.equalsIgnoreCase(providedType)) {
+            return providedType;
+        }
+
+        String connection;
+
+        if (project != null && project.getScm() != null) {
+            connection = Util.firstNonNull(project.getScm().getDeveloperConnection(), project.getScm().getConnection());
+        } else {
+            connection = null;
+        }
+
+        if (Util.isBlank(connection)) {
+            throw new IllegalArgumentException(String.format("one of \"scm.developerConnection\" or \"scm.connection\" must be set when using the \"%s\" type", providedType));
+        }
+
+        return Util.parseScmProvider(connection);
     }
 
     private ScmMetadata loadMetadata() throws MojoFailureException {
-
-        boolean isAuto = typeMatches(AUTO);
         boolean foundMatchingProvider = false;
 
         for (ScmMetadataProvider provider : loadAllProviders()) {
-            boolean providerMatches = typeMatches(provider.type());
 
-            if (isAuto || providerMatches) {
-                ScmMetadata maybeOutput = provider.generate(directory, getLog());
+            if (typeMatches(provider.type())) {
+                ScmMetadata output = provider.generate(directory, getLog());
 
-                if (maybeOutput != null) {
-                    return maybeOutput;
+                if (output != null) {
+                    return output;
                 }
+
+                foundMatchingProvider = true;
             }
 
-            foundMatchingProvider |= providerMatches;
-        }
-
-        if (isAuto) {
-            throw new MojoFailureException("Unable to automatically determine SCM in use");
         }
 
         if (foundMatchingProvider) {
-            throw new MojoFailureException(String.format("Project does not appear to use SCM \"%s\"", type));
+            throw new MojoFailureException(String.format("Project does not appear to use SCM \"%s\"", calculatedScmType));
         }
 
-        throw new MojoFailureException(String.format("Unsupported SCM \"%s\"", type));
+        throw new MojoFailureException(String.format("Unsupported SCM \"%s\"", calculatedScmType));
     }
 
     private List<ScmMetadataProvider> loadAllProviders() {
@@ -227,4 +255,6 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
         out.add(new GitScmMetadataProvider());
         return Collections.unmodifiableList(out);
     }
+
+
 }

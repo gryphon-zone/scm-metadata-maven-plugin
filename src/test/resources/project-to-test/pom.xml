@@ -30,6 +30,13 @@
         <scm.metadata.branch>DEFAULT VALUE</scm.metadata.branch>
     </properties>
 
+    <scm>
+        <tag>HEAD</tag>
+        <url>https://github.com/gryphon-zone/scm-metadata-maven-plugin</url>
+        <connection>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</developerConnection>
+    </scm>
+
   <build>
     <plugins>
       <plugin>
