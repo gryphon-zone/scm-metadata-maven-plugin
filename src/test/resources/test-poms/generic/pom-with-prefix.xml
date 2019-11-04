@@ -13,22 +13,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>sample.plugin</groupId>
-  <artifactId>hello-maven-plugin</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <name>Test MyMojo</name>
-
-    <properties>
-        <foo>bar</foo>
-        <scm.metadata.branch>DEFAULT VALUE</scm.metadata.branch>
-    </properties>
+    <groupId>zone.gryphon.ignore</groupId>
+    <artifactId>testing-pom</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <scm>
         <tag>HEAD</tag>
@@ -37,15 +28,16 @@
         <developerConnection>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</developerConnection>
     </scm>
 
-  <build>
-    <plugins>
-      <plugin>
-          <groupId>zone.gryphon.maven.plugins</groupId>
-          <artifactId>scm-metadata-maven-plugin</artifactId>
-          <version>1.0-SNAPSHOT</version>
-        <configuration>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>zone.gryphon.maven.plugins</groupId>
+                <artifactId>scm-metadata-maven-plugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <configuration>
+                    <prefix>custom.prefix.</prefix>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

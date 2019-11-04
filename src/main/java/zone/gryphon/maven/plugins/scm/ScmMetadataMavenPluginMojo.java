@@ -133,6 +133,34 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
     private int shortRevisionLength;
 
     /**
+     * A map of <code>String</code> to <code>String</code> which allows for properties to be renamed before they're set.
+     * Each key is the name of a property (after the <code>prefix</code> is applied), and the value is what the property
+     * should be renamed to.
+     * <br><br>
+     * For example, if using the default prefix "<code>scm.metadata.</code>", a map entry
+     * "<code>scm.metadata.revision</code>" -> "<code>foo</code>" would result in the plugin setting the property
+     * "<code>foo</code>" instead of "<code>scm.metadata.revision</code>" (the value of the property is unaffected).
+     * <br><br>
+     * Since the rename happens after the prefix is applied, any custom prefix should be included in the map key.
+     * For example, if using the custom prefix "<code>bar.</code>",
+     * the map entry "<code>bar.revision</code>" -> "<code>foo</code>" would result in the plugin setting the property
+     * "<code>foo</code>" instead of "<code>bar.revision</code>" (again, the value of the property is unaffected).
+     * <br><br>
+     * When configuring the value in the POM, the more compact map syntax should be used:
+     * <pre>
+     * &lt;configuration&gt;
+     *     &lt;rename&gt;
+     *         &lt;scm.metadata.revision&gt;foo&lt;/scm.metadata.revision&gt;
+     *     &lt;/rename&gt;
+     * &lt;/configuration&gt;
+     * </pre>
+     *
+     * @since 1.0
+     */
+    @Parameter
+    private Map<String, String> rename;
+
+    /**
      * The normalized version of {@link #getType()}
      */
     private String calculatedScmType;
@@ -151,6 +179,10 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
         }
 
         try {
+
+            if (rename == null) {
+                rename = Collections.emptyMap();
+            }
 
             try {
                 calculatedScmType = calculateScmType(type);
@@ -181,9 +213,10 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
     private Map<String, String> calculateProperties(ScmMetadata metadata) {
         Map<String, String> out = new HashMap<>();
 
-        String shortRevision = metadata.getRevision().length() <= shortRevisionLength ? metadata.getRevision() : metadata.getRevision().substring(0, shortRevisionLength);
+        String revision = metadata.getRevision();
+        String shortRevision = revision.length() <= shortRevisionLength ? revision : revision.substring(0, shortRevisionLength);
 
-        out.put(calculatePropertyName("revision"), metadata.getRevision());
+        out.put(calculatePropertyName("revision"), revision);
         out.put(calculatePropertyName("revision.short"), shortRevision);
         out.put(calculatePropertyName("branch"), metadata.getBranch());
         out.put(calculatePropertyName("dirty"), Boolean.toString(metadata.getUncommittedChangesPresent()));
@@ -195,16 +228,16 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
         return out;
     }
 
-    private String calculatePropertyName(String key) {
-        String calculated;
+    private String calculatePropertyName(String givenKey) {
+        String key;
 
         if (prefix == null || prefix.isEmpty()) {
-            calculated = key;
+            key = givenKey;
         } else {
-            calculated = String.format("%s%s", prefix, key);
+            key = String.format("%s%s", prefix, givenKey);
         }
 
-        return calculated;
+        return rename.containsKey(key) ? rename.get(key) : key;
     }
 
     /**
