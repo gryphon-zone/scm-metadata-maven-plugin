@@ -46,6 +46,7 @@ import static zone.gryphon.maven.plugins.scm.KnownScms.NONE;
  * The metadata calculated is:
  * <ul>
  * <li><code>revision</code> - the current project revision (e.g. git commit SHA)</li>
+ * <li><code>revision.short</code> - a potentially truncated version of the <code>revision</code> property</li>
  * <li><code>branch</code> - the current SCM branch (e.g. <code>master</code>)</li>
  * <li><code>dirty</code> - <code>true</code> if there are any uncommitted local changes in files which are not excluded from SCM, <code>false</code> otherwise (equivalent to checking <code>git status --porcelain</code>)</li>
  * </ul>
@@ -54,6 +55,7 @@ import static zone.gryphon.maven.plugins.scm.KnownScms.NONE;
  * meaning the properties set when using the default configuration are:
  * <ul>
  * <li><code>scm.metadata.revision</code></li>
+ * <li><code>scm.metadata.revision.short</code></li>
  * <li><code>scm.metadata.branch</code></li>
  * <li><code>scm.metadata.dirty</code></li>
  * </ul>
@@ -123,6 +125,14 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
     private String prefix;
 
     /**
+     * The maximum length of <code>revision.short</code>.
+     *
+     * @since 1.0
+     */
+    @Parameter(defaultValue = "8")
+    private int shortRevisionLength;
+
+    /**
      * The normalized version of {@link #getType()}
      */
     private String calculatedScmType;
@@ -171,7 +181,10 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
     private Map<String, String> calculateProperties(ScmMetadata metadata) {
         Map<String, String> out = new HashMap<>();
 
+        String shortRevision = metadata.getRevision().length() <= shortRevisionLength ? metadata.getRevision() : metadata.getRevision().substring(0, shortRevisionLength);
+
         out.put(calculatePropertyName("revision"), metadata.getRevision());
+        out.put(calculatePropertyName("revision.short"), shortRevision);
         out.put(calculatePropertyName("branch"), metadata.getBranch());
         out.put(calculatePropertyName("dirty"), Boolean.toString(metadata.getUncommittedChangesPresent()));
 
@@ -255,6 +268,4 @@ public class ScmMetadataMavenPluginMojo extends AbstractMojo {
         out.add(new GitScmMetadataProvider());
         return Collections.unmodifiableList(out);
     }
-
-
 }

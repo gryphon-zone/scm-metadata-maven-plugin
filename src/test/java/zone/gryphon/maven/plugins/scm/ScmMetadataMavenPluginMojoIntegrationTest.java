@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Properties;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,16 +74,22 @@ public class ScmMetadataMavenPluginMojoIntegrationTest {
 
         mojo.execute();
 
-        assertThat(project.getProperties()).containsOnlyKeys(
+        Properties actual = project.getProperties();
+
+        assertThat(actual).containsOnlyKeys(
             "scm.metadata.branch",
             "scm.metadata.dirty",
             "scm.metadata.revision",
+            "scm.metadata.revision.short",
             "foo"
         );
 
         // verify we didn't modify the other property, but did modify the value of the SCM property
-        assertThat(project.getProperties()).containsEntry("foo", originalOtherPropertyValue);
-        assertThat(project.getProperties()).doesNotContainEntry("scm.metadata.branch", originalScmPropertyValue);
+        assertThat(actual).containsEntry("foo", originalOtherPropertyValue);
+        assertThat(actual).doesNotContainEntry("scm.metadata.branch", originalScmPropertyValue);
+
+        // make sure the revision starts with the short revision
+        assertThat(actual.getProperty("scm.metadata.revision")).startsWith(actual.getProperty("scm.metadata.revision.short"));
     }
 
     private File newFile(final File parent, final String... parts) {
