@@ -1,1 +1,1 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"zone.gryphon.maven.plugins.scm","l":"ScmMetadataMavenPluginMojoIntegrationTest"}]
+typeSearchIndex = [{"p":"zone.gryphon.maven.plugins.scm","l":"AbstractScmMetadataMavenPluginMojoIntegrationTest"},{"l":"All Classes","url":"allclasses-index.html"},{"p":"zone.gryphon.maven.plugins.scm","l":"ScmMetadataMavenPluginMojoIntegrationTest"}]
