@@ -68,8 +68,8 @@ import static zone.gryphon.maven.plugins.scm.util.KnownScms.NONE;
  * For example, the elements of the path <code>/alpha/bravo</code> can be accessed via the following indices:
  * <table>
  * <tr><th>Segment</th><th>Index</th><th>Negative Index</th></tr>
- * <tr><td><code>alpha</code></td><td>0</td><code>-2</code></tr>
- * <tr><td><code>bravo</code></td><td>1</td><td>-1</td></tr>
+ * <tr><td><code>alpha</code></td><td><code>0</code></td><td><code>-2</code></td></tr>
+ * <tr><td><code>bravo</code></td><td><code>1</code></td><td><code>-1</code></td></tr>
  * </table>
  * See the <code>remotePathNotation</code> configuration for details about the format of the
  * <code>remote.path.segment</code> properties.
