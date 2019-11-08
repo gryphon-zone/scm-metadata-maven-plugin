@@ -19,7 +19,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
-import java.util.Set;
+import java.util.List;
 
 @Value
 @Builder(toBuilder = true)
@@ -35,6 +35,6 @@ public class ScmMetadata {
     private final Boolean uncommittedChangesPresent;
 
     @NonNull
-    private final Set<RemoteMetadata> remotes;
+    private final List<String> remotePathSegments;
 
 }

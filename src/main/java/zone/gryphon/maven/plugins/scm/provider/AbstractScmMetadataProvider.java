@@ -13,10 +13,15 @@
  * limitations under the License.
  */
 
-package zone.gryphon.maven.plugins.scm;
+package zone.gryphon.maven.plugins.scm.provider;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import zone.gryphon.maven.plugins.scm.util.Util;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 public abstract class AbstractScmMetadataProvider implements ScmMetadataProvider {
@@ -27,5 +32,27 @@ public abstract class AbstractScmMetadataProvider implements ScmMetadataProvider
     @Override
     public String type() {
         return type;
+    }
+
+    protected List<String> chunkPath(String path) {
+        if (Util.isBlank(path)) {
+            return Collections.emptyList();
+        }
+
+        String[] parts = path.split("/");
+
+        if (parts.length == 0) {
+            return Collections.emptyList();
+        }
+
+        List<String> out = new ArrayList<>(parts.length);
+
+        for (String part : parts) {
+            if (Util.isNonBlank(part)) {
+                out.add(part);
+            }
+        }
+
+        return out;
     }
 }

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package zone.gryphon.maven.plugins.scm;
+package zone.gryphon.maven.plugins.scm.util;
 
 import lombok.experimental.UtilityClass;
 

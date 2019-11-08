@@ -13,20 +13,18 @@
  * limitations under the License.
  */
 
-package zone.gryphon.maven.plugins.scm.model;
+package zone.gryphon.maven.plugins.scm.provider;
 
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+import zone.gryphon.maven.plugins.scm.model.ScmMetadata;
 
-@Value
-@Builder(toBuilder = true)
-public class RemoteMetadata {
+import java.io.File;
 
-    @NonNull
-    private final String name;
+public interface ScmMetadataProvider {
 
-    @NonNull
-    private final String group;
+    String type();
+
+    ScmMetadata generate(File directory, String scmUrl, Log log) throws MojoFailureException;
 
 }

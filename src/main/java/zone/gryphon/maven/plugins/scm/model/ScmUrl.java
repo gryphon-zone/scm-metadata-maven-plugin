@@ -13,41 +13,14 @@
  * limitations under the License.
  */
 
-package zone.gryphon.maven.plugins.scm;
+package zone.gryphon.maven.plugins.scm.model;
 
-import lombok.experimental.UtilityClass;
+import lombok.Builder;
+import lombok.Value;
 
-import java.util.Objects;
-
-@UtilityClass
-@SuppressWarnings("WeakerAccess")
-public final class Util {
-
-    /**
-     * Return the first non-null element, or null if all elements are null
-     *
-     * @param args Elements
-     * @param <T>  The type
-     * @return The first non-null element, or null if all elements are null
-     */
-    public static <T> T firstNonNull(T... args) {
-
-        for (T t : Objects.requireNonNull(args)) {
-            if (t != null) {
-                return t;
-            }
-        }
-
-        return null;
-    }
-
-    public static boolean isNonBlank(String input) {
-        return !isBlank(input);
-    }
-
-    public static boolean isBlank(String input) {
-        return input == null || input.isEmpty();
-    }
+@Value
+@Builder(toBuilder = true)
+public class ScmUrl {
 
     /**
      * Parses the <code>&lt;scm_provider&gt;</code> component of a
@@ -61,7 +34,7 @@ public final class Util {
      * @return The <code>&lt;scm_provider&gt;</code> component of the URL
      * @throws IllegalArgumentException if the provided URL is invalid
      */
-    public static String parseScmProvider(String scm) throws IllegalArgumentException {
+    public static ScmUrl parse(String scm) throws IllegalArgumentException {
         final String requiredPrefix = "scm:";
         final String requiredFormat = "scm:<scm_provider><delimiter><provider_specific_part>";
 
@@ -89,7 +62,21 @@ public final class Util {
             throw new IllegalArgumentException(String.format("SCM URL is malformed, does not adhere to format \"%s\": \"%s\"", requiredFormat, scm));
         }
 
-        return scm.substring(requiredPrefix.length(), index);
+        String provider = scm.substring(requiredPrefix.length(), index);
+        String delimiter = scm.substring(index, index + 1);
+        String url = scm.substring(index + 1);
+
+        return ScmUrl.builder()
+            .provider(provider)
+            .delimiter(delimiter)
+            .url(url)
+            .build();
     }
+
+    private String provider;
+
+    private String delimiter;
+
+    private String url;
 
 }

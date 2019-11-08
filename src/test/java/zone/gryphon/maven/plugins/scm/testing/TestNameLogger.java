@@ -13,18 +13,19 @@
  * limitations under the License.
  */
 
-package zone.gryphon.maven.plugins.scm;
+package zone.gryphon.maven.plugins.scm.testing;
 
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import zone.gryphon.maven.plugins.scm.model.ScmMetadata;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.rules.TestName;
+import org.junit.runner.Description;
 
-import java.io.File;
+@Slf4j
+public class TestNameLogger extends TestName {
 
-public interface ScmMetadataProvider {
 
-    String type();
-
-    ScmMetadata generate(File directory, Log log) throws MojoFailureException;
-
+    @Override
+    protected void starting(Description d) {
+        super.starting(d);
+        log.info(">>> Running {}", getMethodName());
+    }
 }
