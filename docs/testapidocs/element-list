@@ -1,1 +1,4 @@
 zone.gryphon.maven.plugins.scm
+zone.gryphon.maven.plugins.scm.git
+zone.gryphon.maven.plugins.scm.model
+zone.gryphon.maven.plugins.scm.testing
