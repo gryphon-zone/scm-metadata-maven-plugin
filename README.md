@@ -2,12 +2,16 @@
 
 [![Build Status][build_badge]][build_link]
 [![Maven Central][central_badge]][central_link]
+[![License][license_badge]][license_url]
 
 [build_badge]: https://jenkins.gryphon.zone/buildStatus/icon?job=gryphon-zone%2Fscm-metadata-maven-plugin%2Fmaster
 [build_link]: https://jenkins.gryphon.zone/view/master%20builds/job/gryphon-zone/job/scm-metadata-maven-plugin/job/master/
 
-[central_badge]: https://maven-badges.herokuapp.com/maven-central/zone.gryphon.maven.plugins/scm-metadata-maven-plugin/badge.png
-[central_link]: https://search.maven.org/artifact/zone.gryphon.maven.plugins/scm-metadata-maven-plugin/
+[central_badge]: https://img.shields.io/maven-central/v/zone.gryphon.maven.plugins/scm-metadata-maven-plugin
+[central_link]: https://search.maven.org/search?q=g:%22zone.gryphon.maven.plugins%22%20AND%20a:%22scm-metadata-maven-plugin%22
+
+[license_badge]: https://img.shields.io/github/license/gryphon-zone/scm-metadata-maven-plugin
+[license_url]: http://www.apache.org/licenses/LICENSE-2.0
 
 Maven plugin to inject metadata about the SCM in use for the project into your build as Maven properties,
 for re-use by other plugins.
