@@ -1,8 +1,12 @@
 # scm-metadata-maven-plugin
 
-[![Build Status][build_badge]][build_link]
-[![Maven Central][central_badge]][central_link]
+[![License][documentation_badge]][documentation_url]
 [![License][license_badge]][license_url]
+[![Maven Central][central_badge]][central_link]
+[![Build Status][build_badge]][build_link]
+
+[documentation_badge]: https://img.shields.io/static/v1?label=documentation&message=Github%20Pages&color=informational
+[documentation_url]: https://gryphon-zone.github.io/scm-metadata-maven-plugin/plugin-info
 
 [build_badge]: https://jenkins.gryphon.zone/buildStatus/icon?job=gryphon-zone%2Fscm-metadata-maven-plugin%2Fmaster
 [build_link]: https://jenkins.gryphon.zone/view/master%20builds/job/gryphon-zone/job/scm-metadata-maven-plugin/job/master/
@@ -13,15 +17,14 @@
 [license_badge]: https://img.shields.io/github/license/gryphon-zone/scm-metadata-maven-plugin
 [license_url]: http://www.apache.org/licenses/LICENSE-2.0
 
-Maven plugin to inject metadata about the SCM in use for the project into your build as Maven properties,
-for re-use by other plugins.
+Maven plugin to inject metadata about the SCM in use for the project into your build as Maven properties, for re-use by other plugins.
 
-Similar in principle to the [buildnumber-maven-plugin](https://www.mojohaus.org/buildnumber-maven-plugin/), with the following key differences:
+Similar in spirit to the [Buildnumber Maven Plugin](https://www.mojohaus.org/buildnumber-maven-plugin/), with the following key differences:
 1. Focus specifically on SCM metadata
 1. Richer set of metadata included
 1. Greater control over injected properties
 
-See the [scm-metadata-maven-plugin documentation](https://gryphon-zone.github.io/scm-metadata-maven-plugin/) for details.
+See the [documentation][documentation_url] for details.
 
 ## SCM support
 
