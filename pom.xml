@@ -50,8 +50,8 @@
 
     <distributionManagement>
         <site>
-            <id>github-pages</id>
-            <url>file://docs</url>
+            <id>gh-pages</id>
+            <url>${project.scm.developerConnection}</url>
         </site>
     </distributionManagement>
 
@@ -236,7 +236,49 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <configuration>
+                        <skipDeploy>true</skipDeploy>
+                        <!-- don't deploy site with maven-site-plugin -->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-publish-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <scmBranch>gh-pages</scmBranch>
+                        <content>${project.reporting.outputDirectory}</content>
+                        <!-- no need for site:stage, use target/site -->
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>scm-publish</id>
+                            <!-- deploy site with maven-scm-publish-plugin -->
+                            <goals>
+                                <goal>publish-scm</goal>
+                            </goals>
+                            <phase>site-deploy</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+
+        </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>scm-publish</id>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
