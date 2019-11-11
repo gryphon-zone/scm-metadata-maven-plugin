@@ -24,7 +24,7 @@
 
     <groupId>zone.gryphon.maven.plugins</groupId>
     <artifactId>scm-metadata-maven-plugin</artifactId>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.7</version>
 
     <packaging>maven-plugin</packaging>
 
@@ -41,7 +41,7 @@
 
     <scm>
         <?SORTPOM IGNORE?>
-        <tag>HEAD</tag>
+        <tag>scm-metadata-maven-plugin-1.7</tag>
         <url>https://github.com/gryphon-zone/scm-metadata-maven-plugin</url>
         <connection>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</developerConnection>
