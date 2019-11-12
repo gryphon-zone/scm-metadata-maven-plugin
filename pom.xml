@@ -19,7 +19,7 @@
     <parent>
         <groupId>zone.gryphon</groupId>
         <artifactId>base-pom</artifactId>
-        <version>0.20.64-7b315b8</version>
+        <version>0.20.76-b9473c8</version>
     </parent>
 
     <groupId>zone.gryphon.maven.plugins</groupId>
@@ -58,7 +58,6 @@
     <properties>
         <java.version.minor>7</java.version.minor>
         <maven-api.version>3.3.3</maven-api.version>
-        <maven.site.deploy.skip>false</maven.site.deploy.skip>
     </properties>
 
     <dependencyManagement>
@@ -236,70 +235,7 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <configuration>
-                        <skipDeploy>true</skipDeploy>
-                        <!-- don't deploy site with maven-site-plugin -->
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-scm-publish-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <configuration>
-                        <scmBranch>gh-pages</scmBranch>
-                        <content>${project.reporting.outputDirectory}</content>
-                        <!-- no need for site:stage, use target/site -->
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>scm-publish</id>
-                            <!-- deploy site with maven-scm-publish-plugin -->
-                            <goals>
-                                <goal>publish-scm</goal>
-                            </goals>
-                            <phase>site-deploy</phase>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-
-        </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-scm-publish-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>scm-publish</id>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>clean-site</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>post-site</phase>
-                        <configuration>
-                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                            <filesets>
-                                <fileset>
-                                    <directory>${project.basedir}/docs</directory>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
