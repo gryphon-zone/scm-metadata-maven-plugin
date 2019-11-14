@@ -19,7 +19,7 @@
     <parent>
         <groupId>zone.gryphon</groupId>
         <artifactId>base-pom</artifactId>
-        <version>0.20.76-b9473c8</version>
+        <version>0.20.88-6333ba9</version>
     </parent>
 
     <groupId>zone.gryphon.maven.plugins</groupId>
@@ -51,7 +51,7 @@
     <distributionManagement>
         <site>
             <id>gh-pages</id>
-            <url>${project.scm.developerConnection}</url>
+            <url>scm:git:git@github.com:gryphon-zone/scm-metadata-maven-plugin.git</url>
         </site>
     </distributionManagement>
 
